@@ -743,12 +743,6 @@ b̂_i의 Pearson r=0.665는 완벽한 예측(r=1.0)에는 미치지 못하지만
 
 **CIR vs Range-only 성능 격차 분석:** Chatelier et al.(2023)과 본 연구를 비교하면 CIR 없이 얼마나 성능을 달성할 수 있는지 정량화할 수 있다. 이 격차를 줄이는 것이 실용적 CIR-free 측위 연구의 핵심 과제다.
 
----
-
-## 5. References
-
-[1] Lee, J., Lee, Y., Kim, J., Kosiorek, A., Choi, S., & Teh, Y. W. (2019). Set Transformer: A Framework for Attention-based Permutation-Invariant Neural Networks. *Proceedings of the 36th International Conference on Machine Learning (ICML)*, PMLR 97:3744–3753.
-
 [2] Zaheer, M., Kottur, S., Ravanbhakhsh, S., Poczos, B., Salakhutdinov, R., & Smola, A. (2017). Deep Sets. *Advances in Neural Information Processing Systems (NeurIPS)*, 30.
 
 [3] Monga, V., Li, Y., & Eldar, Y. C. (2021). Algorithm Unrolling: Interpretable, Efficient Deep Learning for Signal and Image Processing. *IEEE Signal Processing Magazine*, 38(2), 18–44.
