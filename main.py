@@ -175,16 +175,24 @@ def _batch_infer_single(model, d_hat_np, p_bs_np, device, batch_size=512):
 
 
 def _ensemble_infer(d_hat_np, p_bs_np, device):
-    # ensemble.pt: 여러 모델을 하나의 파일로 통합
-    # fallback: 개별 model_fold*.pt / model.pt
     preds = []
-    if os.path.exists('ensemble.pt'):
-        ckpt = torch.load('ensemble.pt', map_location=device, weights_only=False)
-        entries = ckpt['models']
-        print(f'Ensemble: {len(entries)} models from ensemble.pt')
-        for entry in entries:
-            m = LocalizationModel(**entry['hyperparams']).to(device)
-            m.load_state_dict(entry['state_dict'])
+    # model.pt가 앙상블 파일인지 단일 모델인지 자동 감지
+    if os.path.exists('model.pt'):
+        ckpt = torch.load('model.pt', map_location=device, weights_only=False)
+        if 'models' in ckpt:
+            entries = ckpt['models']
+            print(f'Ensemble: {len(entries)} models from model.pt')
+            for entry in entries:
+                m = LocalizationModel(**entry['hyperparams']).to(device)
+                m.load_state_dict(entry['state_dict'])
+                m.eval()
+                pred = _batch_infer_single(m, d_hat_np, p_bs_np, device)
+                preds.append(pred)
+                del m
+        else:
+            print('Single model from model.pt')
+            m = LocalizationModel(**ckpt['hyperparams']).to(device)
+            m.load_state_dict(ckpt['state_dict'])
             m.eval()
             pred = _batch_infer_single(m, d_hat_np, p_bs_np, device)
             preds.append(pred)
@@ -192,10 +200,11 @@ def _ensemble_infer(d_hat_np, p_bs_np, device):
     else:
         found = sorted(set(
             glob.glob('model_fold*.pt') +
-            glob.glob('model_s*.pt') +
-            (['model.pt'] if os.path.exists('model.pt') else [])
+            glob.glob('model_s*.pt')
         ))
-        model_paths = found if found else ['model.pt']
+        model_paths = found if found else []
+        if not model_paths:
+            raise FileNotFoundError('No model file found (model.pt or model_fold*.pt)')
         print(f'Ensemble: {len(model_paths)} models (individual files)')
         for path in model_paths:
             m    = _load_model(path, device)
